@@ -4,9 +4,9 @@ namespace App\Repositories;
 
 use App\Interfaces\LocationInterface;
 use App\Models\Location;
+use App\Models\UserLocation;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Str;
 
 class LocationRepository implements LocationInterface
 {
@@ -46,12 +46,34 @@ class LocationRepository implements LocationInterface
 
     public function delete(int $id): bool
     {
-        $Location = $this->getById($id);
+        $location = $this->getById($id);
 
-        if($Location->delete()){
+        if($location->delete()){
             return true;
         }else{
             return false;
         }
+    }
+
+    public function assignLocationToUser(Request $request): UserLocation
+    {
+        $locationExist = UserLocation::where('user_id', $request->user_id)->where('location_id', $request->location_id)->first();
+        if($locationExist && $locationExist !=null){
+            $locationExist->delete();
+        }
+
+        UserLocation::create($request->all());
+
+        return UserLocation::where('user_id', $request->user_id)->first();
+    }
+
+    public function removeLocationToUser(Request $request): ?bool
+    {
+        $locationExist = UserLocation::where('user_id', $request->user_id)->where('location_id', $request->location_id)->first();
+        if($locationExist && $locationExist !=null){
+            $detachLocation = $locationExist->delete();
+            return $detachLocation;
+        }
+        return false;
     }
 }

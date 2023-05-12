@@ -66,9 +66,9 @@ class LocationController extends Controller
                 return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
-            $permission = $this->locationRepository->create($request);
+            $location = $this->locationRepository->create($request);
             
-            return ResponseHelper::successHandler($permission, "Permission created successfully", RESPONSE::HTTP_OK);
+            return ResponseHelper::successHandler($location, "Location created successfully", RESPONSE::HTTP_CREATED);
         }
         catch(BadMethodCallException $badMethodCallException){
             return ResponseHelper::errorHandling($badMethodCallException->getMessage(), Response::HTTP_BAD_REQUEST);
@@ -119,5 +119,54 @@ class LocationController extends Controller
             return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         
+    }
+
+    public function assignLocationToUser(Request $request)
+    {
+        try{
+            $validator = Validator::make($request->all(), [ 
+                'user_id'=> 'required|integer',
+                'location_id'=> 'required|integer',
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $locationAttached = $this->locationRepository->assignLocationToUser($request);
+            
+            return ResponseHelper::successHandler($locationAttached, "Location Attached to User Successfully", RESPONSE::HTTP_CREATED);
+        }
+        catch(BadMethodCallException $badMethodCallException){
+            return ResponseHelper::errorHandling($badMethodCallException->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+        catch(Exception $ex){
+            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    public function removeLocationToUser(Request $request)
+    {
+        try{
+            $validator = Validator::make($request->all(), [ 
+                'user_id'=> 'required|integer',
+                'location_id'=> 'required|integer',
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $locationRemoved = $this->locationRepository->removeLocationToUser($request);
+            
+            return ResponseHelper::successHandler($locationRemoved, "Location removed to User Successfully", RESPONSE::HTTP_OK);
+        }
+        catch(BadMethodCallException $badMethodCallException){
+            return ResponseHelper::errorHandling($badMethodCallException->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+        catch(Exception $ex){
+            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
