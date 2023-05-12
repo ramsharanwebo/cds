@@ -7,6 +7,7 @@ use App\Http\Controllers\DucketController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -84,5 +85,14 @@ Route::group(['prefix'=> 'v1'], function(){
         Route::post('/', [DucketController::class, 'create']);
         Route::put('/{id}', [DucketController::class, 'update']);
         Route::delete('/{id}', [DucketController::class, 'delete']);
+    });
+
+    //tickets
+    Route::group(['prefix'=>'tickets'], function(){
+        Route::get('/', [TicketController::class, 'index']);
+        Route::get('/{id}', [TicketController::class, 'show']);
+        Route::post('/', [TicketController::class, 'create']);
+        Route::put('/{id}', [TicketController::class, 'update']);
+        Route::delete('/{id}', [TicketController::class, 'delete']);
     });
 });

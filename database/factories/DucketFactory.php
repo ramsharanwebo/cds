@@ -32,7 +32,7 @@ class DucketFactory extends Factory
             "gst"=>fake()->randomFloat(2), 
             "levy"=>"", 
             "total_amount"=>fake()->randomFloat(2), 
-            "count"=>fake()->numberBetween($min = 10, $max = 100).'-'.Str::random(6), 
+            "count"=>fake()->numberBetween($min = 10, $max = 100), 
             "created_by"=>$userIds[0],
         ];
     }
