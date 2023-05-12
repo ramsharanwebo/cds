@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttachPermissionsController;
 use App\Http\Controllers\CDSUserController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Http\Request;
@@ -60,4 +61,13 @@ Route::group(['prefix'=> 'v1'], function(){
     Route::post('/customers', [CustomerController::class, 'create']);
     Route::put('/customers/{id}', [CustomerController::class, 'update']);
     Route::delete('/customers/{id}', [CustomerController::class, 'delete']);
+
+    //Locations
+    Route::group(['prefix'=>'locations'], function(){
+        Route::get('/', [LocationController::class, 'index']);
+        Route::get('/{id}', [LocationController::class, 'show']);
+        Route::post('', [LocationController::class, 'create']);
+        Route::put('/{id}', [LocationController::class, 'update']);
+        Route::delete('/{id}', [LocationController::class, 'delete']);
+    });
 });
