@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
-use App\Repositories\DucketRepository;
+use App\Repositories\TicketRepository;
 use BadMethodCallException;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -12,13 +12,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Validator;
 
-class DucketController extends Controller
+class TicketController extends Controller
 {
-    private $ducketRepository;
+    private $ticketRepository;
 
-    public function __construct(DucketRepository $ducketRepository)
-    {
-        $this->ducketRepository = $ducketRepository;
+    public function __construct(TicketRepository $ticketRepository)
+    { 
+        $this->ticketRepository = $ticketRepository;
     }
 
     public function index(Request $request): JsonResponse
@@ -30,9 +30,9 @@ class DucketController extends Controller
             $order = $request->order??"ASC";
             $per_page = $request->per_page??2;
             
-            $duckets = $this->ducketRepository->getAllPaginated($page_num, $per_page, $sort_by, $order, $key);
-
-            return ResponseHelper::successHandler($duckets, "Duckets are fetched successfully", RESPONSE::HTTP_OK);
+            $tickets = $this->ticketRepository->getAllPaginated($page_num, $per_page, $sort_by, $order, $key);
+            
+            return ResponseHelper::successHandler($tickets, "Tickets are fetched successfully", RESPONSE::HTTP_OK);
             } catch (Exception $ex) {
                 return ResponseHelper::errorHandling($data=[], $ex->getMessage(), RESPONSE::HTTP_INTERNAL_SERVER_ERROR);
             }
@@ -41,8 +41,8 @@ class DucketController extends Controller
     public function show(int $id): JsonResponse
     {
         try{
-            $ducket = $this->ducketRepository->getById($id);
-            return ResponseHelper::successHandler($ducket, "Ducket fetched successfully", RESPONSE::HTTP_OK);
+            $ticket = $this->ticketRepository->getById($id);
+            return ResponseHelper::successHandler($ticket, "Ticket fetched successfully", RESPONSE::HTTP_OK);
         }
         catch(ModelNotFoundException $modelNotFoundException){
             return ResponseHelper::errorHandling("No resource found!", Response::HTTP_NOT_FOUND);
@@ -57,22 +57,24 @@ class DucketController extends Controller
     {
         try{
             $validator = Validator::make($request->all(), [ 
-                "ducket_date"=> "required|date",
-                "goods"=> "nullable|max: 199",
-                "notes"=> "nullable|max:199",
-                "gst"=> "nullable|max:15",
-                "levy"=> "nullable|max:15",
-                "total_amount"=> "nullable|max:199",
-                "count"=> "nullable|integer",
+                "location_id"=> "required|integer",
+                "customer_id"=> "required|integer",
+                "ticket_date"=> "required|date",
+                "reference"=> "nullable|max:199",
+                "amount"=> "nullable|max:199",
+                "container_qty"=> "nullable|integer",
+                "created_by"=> "nullable|integer",
+                "container_qty"=> "nullable|integer",
+                "status"=> "boolean|required"
             ]);
 
             if ($validator->fails()) {
                 return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
-            $location = $this->ducketRepository->create($request);
+            $location = $this->ticketRepository->create($request);
             
-            return ResponseHelper::successHandler($location, "Ducket created successfully", RESPONSE::HTTP_CREATED);
+            return ResponseHelper::successHandler($location, "Ticket created successfully", RESPONSE::HTTP_CREATED);
         }
         catch(BadMethodCallException $badMethodCallException){
             return ResponseHelper::errorHandling($badMethodCallException->getMessage(), Response::HTTP_BAD_REQUEST);
@@ -87,22 +89,24 @@ class DucketController extends Controller
     {
         try{
             $validator = Validator::make($request->all(), [ 
-                "ducket_date"=> "sometimes|date",
-                "goods"=> "nullable|max: 199",
-                "notes"=> "nullable|max:199",
-                "gst"=> "nullable|max:15",
-                "levy"=> "nullable|max:15",
-                "total_amount"=> "nullable|max:199",
-                "count"=> "nullable|integer",
+                "location_id"=> "sometimes|integer",
+                "customer_id"=> "sometimes|integer",
+                "ticket_date"=> "sometimes|date",
+                "reference"=> "nullable|max:199",
+                "amount"=> "nullable|max:199",
+                "container_qty"=> "nullable|integer",
+                "created_by"=> "nullable|integer",
+                "container_qty"=> "nullable|integer",
+                "status"=> "boolean|sometimes"
             ]);
 
             if ($validator->fails()) {
                 return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
-            $ducket = $this->ducketRepository->update($request, $id);
+            $ticket = $this->ticketRepository->update($request, $id);
             
-            return ResponseHelper::successHandler($ducket, "Ducket updated successfully", RESPONSE::HTTP_OK);
+            return ResponseHelper::successHandler($ticket, "Ticket updated successfully", RESPONSE::HTTP_OK);
         }
         catch(ModelNotFoundException $modelNotFoundException){
             return ResponseHelper::errorHandling("Resource not found", Response::HTTP_NOT_FOUND);
@@ -116,9 +120,9 @@ class DucketController extends Controller
     public function delete(int $id): JsonResponse
     {
         try{
-            $this->ducketRepository->delete($id);
+            $this->ticketRepository->delete($id);
             
-            return ResponseHelper::successHandler($data=[], "Ducket deleted successfully", RESPONSE::HTTP_OK);
+            return ResponseHelper::successHandler($data=[], "Ticket deleted successfully", RESPONSE::HTTP_OK);
         }
         catch(ModelNotFoundException $modelNotFoundException){
             return ResponseHelper::errorHandling("Resource not found", Response::HTTP_NOT_FOUND);
