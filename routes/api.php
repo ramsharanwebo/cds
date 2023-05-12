@@ -66,8 +66,12 @@ Route::group(['prefix'=> 'v1'], function(){
     Route::group(['prefix'=>'locations'], function(){
         Route::get('/', [LocationController::class, 'index']);
         Route::get('/{id}', [LocationController::class, 'show']);
-        Route::post('', [LocationController::class, 'create']);
+        Route::post('/', [LocationController::class, 'create']);
         Route::put('/{id}', [LocationController::class, 'update']);
         Route::delete('/{id}', [LocationController::class, 'delete']);
     });
+
+    //assign user to location
+    Route::post('/assign-location-to-user', [LocationController::class, 'assignLocationToUser']);
+    Route::post('/remove-location-to-user', [LocationController::class, 'removeLocationToUser']);
 });
