@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttachPermissionsController;
 use App\Http\Controllers\CDSUserController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DucketController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
@@ -74,4 +75,14 @@ Route::group(['prefix'=> 'v1'], function(){
     //assign user to location
     Route::post('/assign-location-to-user', [LocationController::class, 'assignLocationToUser']);
     Route::post('/remove-location-to-user', [LocationController::class, 'removeLocationToUser']);
+
+
+    //Duckets
+    Route::group(['prefix'=>'duckets'], function(){
+        Route::get('/', [DucketController::class, 'index']);
+        Route::get('/{id}', [DucketController::class, 'show']);
+        Route::post('/', [DucketController::class, 'create']);
+        Route::put('/{id}', [DucketController::class, 'update']);
+        Route::delete('/{id}', [DucketController::class, 'delete']);
+    });
 });
