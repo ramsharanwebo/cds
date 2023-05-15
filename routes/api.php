@@ -29,26 +29,33 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix'=> 'v1'], function(){
     // roles
-    Route::get('/roles', [RoleController::class, 'index']);
-    Route::get('/roles/{id}', [RoleController::class, 'show']);
-    Route::post('/roles', [RoleController::class, 'create']);
-    Route::put('/roles/{id}', [RoleController::class, 'update']);
-    Route::delete('/roles/{id}', [RoleController::class, 'delete']);
+    Route::group(['prefix'=>'roles'], function(){
+        Route::get('/', [RoleController::class, 'index']);
+        Route::get('/{id}', [RoleController::class, 'show']);
+        Route::post('/', [RoleController::class, 'create']);
+        Route::put('/{id}', [RoleController::class, 'update']);
+        Route::delete('/{id}', [RoleController::class, 'delete']);
+    });
 
     //permissions
-    Route::get('/permissions', [PermissionController::class, 'index']);
-    Route::get('/permissions/{id}', [PermissionController::class, 'show']);
-    Route::post('/permissions', [PermissionController::class, 'create']);
-    Route::put('/permissions/{id}', [PermissionController::class, 'update']);
-    Route::delete('/permissions/{id}', [PermissionController::class, 'delete']);
+    Route::group(['prefix'=>'permissions'], function(){
+        Route::get('/', [PermissionController::class, 'index']);
+        Route::get('/{id}', [PermissionController::class, 'show']);
+        Route::post('/', [PermissionController::class, 'create']);
+        Route::put('/{id}', [PermissionController::class, 'update']);
+        Route::delete('/{id}', [PermissionController::class, 'delete']);
+    });
+    
 
     //users
-    Route::get('/users', [CDSUserController::class, 'index']);
-    Route::get('/users/{id}', [CDSUserController::class, 'show']);
-    Route::post('/users', [CDSUserController::class, 'create']);
-    Route::put('/users/{id}', [CDSUserController::class, 'update']);
-    Route::delete('/users/{id}', [CDSUserController::class, 'delete']);
-
+    Route::group(['prefix'=>'users'], function(){
+        Route::get('/', [CDSUserController::class, 'index']);
+        Route::get('/{id}', [CDSUserController::class, 'show']);
+        Route::post('/', [CDSUserController::class, 'create']);
+        Route::put('/{id}', [CDSUserController::class, 'update']);
+        Route::delete('/{id}', [CDSUserController::class, 'delete']);
+    });
+    
     //attach permissions to role
     Route::post('/attach-permissions-to-role', [AttachPermissionsController::class, 'attachPermissionToRole']);
     Route::post('/detach-permissions-to-role', [AttachPermissionsController::class, 'detachPermissionToRole']);
@@ -58,24 +65,27 @@ Route::group(['prefix'=> 'v1'], function(){
     Route::post('/detach-permissions-to-user', [AttachPermissionsController::class, 'detachPermissionToUser']);
 
     // customers
-    Route::get('/customers', [CustomerController::class, 'index']);
-    Route::get('/customers/{id}', [CustomerController::class, 'show']);
-    Route::post('/customers', [CustomerController::class, 'create']);
-    Route::put('/customers/{id}', [CustomerController::class, 'update']);
-    Route::delete('/customers/{id}', [CustomerController::class, 'delete']);
+    Route::group(['prefix'=>'customers'], function(){
+        Route::get('/', [CustomerController::class, 'index']);
+        Route::get('/{id}', [CustomerController::class, 'show']);
+        Route::post('/', [CustomerController::class, 'create']);
+        Route::put('/{id}', [CustomerController::class, 'update']);
+        Route::delete(' /{id}', [CustomerController::class, 'delete']);
 
-    //Locations
-    Route::group(['prefix'=>'locations'], function(){
-        Route::get('/', [LocationController::class, 'index']);
-        Route::get('/{id}', [LocationController::class, 'show']);
-        Route::post('/', [LocationController::class, 'create']);
-        Route::put('/{id}', [LocationController::class, 'update']);
-        Route::delete('/{id}', [LocationController::class, 'delete']);
     });
+    
+    //Locations
+    // Route::group(['prefix'=>'locations'], function(){
+    //     Route::get('/', [LocationController::class, 'index']);
+    //     Route::get('/{id}', [LocationController::class, 'show']);
+    //     Route::post('/', [LocationController::class, 'create']);
+    //     Route::put('/{id}', [LocationController::class, 'update']);
+    //     Route::delete('/{id}', [LocationController::class, 'delete']);
+    // });
 
-    //assign user to location
-    Route::post('/assign-location-to-user', [LocationController::class, 'assignLocationToUser']);
-    Route::post('/remove-location-to-user', [LocationController::class, 'removeLocationToUser']);
+    // //assign user to location
+    // Route::post('/assign-location-to-user', [LocationController::class, 'assignLocationToUser']);
+    // Route::post('/remove-location-to-user', [LocationController::class, 'removeLocationToUser']);
 
 
     //Duckets
@@ -88,11 +98,11 @@ Route::group(['prefix'=> 'v1'], function(){
     });
 
     //tickets
-    Route::group(['prefix'=>'tickets'], function(){
-        Route::get('/', [TicketController::class, 'index']);
-        Route::get('/{id}', [TicketController::class, 'show']);
-        Route::post('/', [TicketController::class, 'create']);
-        Route::put('/{id}', [TicketController::class, 'update']);
-        Route::delete('/{id}', [TicketController::class, 'delete']);
-    });
+    // Route::group(['prefix'=>'tickets'], function(){
+    //     Route::get('/', [TicketController::class, 'index']);
+    //     Route::get('/{id}', [TicketController::class, 'show']);
+    //     Route::post('/', [TicketController::class, 'create']);
+    //     Route::put('/{id}', [TicketController::class, 'update']);
+    //     Route::delete('/{id}', [TicketController::class, 'delete']);
+    // });
 });
