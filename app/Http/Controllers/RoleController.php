@@ -67,22 +67,27 @@ class RoleController extends Controller
             $data['name'] = $request->name;
             $data['description'] = $request->description;
             $role = $this->roleRepository->create($data);
+            $message = 'Role created successfully';
 
-            event(new GenericEvent(
-                'Role created successfully', 
-                Route::current()->uri(),
-                Route::current()->methods(),
-                $request
-            ));
- 
-            return ResponseHelper::successHandler($role, "Role created successfully", RESPONSE::HTTP_OK);
+            $res = ResponseHelper::successHandler($role, $message, RESPONSE::HTTP_OK);
         }
         catch(BadMethodCallException $badMethodCallException){
-            return ResponseHelper::errorHandling($badMethodCallException->getMessage(), Response::HTTP_BAD_REQUEST);
+            $message = $badMethodCallException->getMessage();
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_BAD_REQUEST);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        event(new GenericEvent(
+            $message, 
+            Route::current()->uri(),
+            Route::current()->methods(),
+            $request
+        ));
+
+        return $res;
         
     }
 
@@ -90,24 +95,36 @@ class RoleController extends Controller
     {
         try{
             $validator = Validator::make($request->all(), [ 
-                'name' => 'sometimes|required|max:199',
-                'description' => 'nullable|max:199',
+                'name' => 'sometimes|required|string|max:199',
+                'description' => 'nullable|string|max:199',
             ]);
 
             if ($validator->fails()) {
-                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+                $res = ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             $role = $this->roleRepository->update($request, $id);
-            
-            return ResponseHelper::successHandler($role, "Role updated successfully", RESPONSE::HTTP_OK);
+            $message = "Role updated successfully";
+
+            $res = ResponseHelper::successHandler($role, $message, RESPONSE::HTTP_OK);
         }
-        catch(ModelNotFoundException $modelNotFoundException){
-            return ResponseHelper::errorHandling("Resource not found", Response::HTTP_NOT_FOUND);
+        catch(ModelNotFoundException){
+            $message = "Resource not found";
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        event(new GenericEvent(
+            $message, 
+            Route::current()->uri(),
+            Route::current()->methods(),
+            $request
+        ));
+
+        return $res;
         
     }
 
@@ -115,15 +132,27 @@ class RoleController extends Controller
     {
         try{
             $this->roleRepository->delete($id);
-            
-            return ResponseHelper::successHandler("Role deleted successfully", RESPONSE::HTTP_OK);
+            $message = "Role deleted successfully";
+
+            $res = ResponseHelper::successHandler($message, RESPONSE::HTTP_OK);
         }
-        catch(ModelNotFoundException $modelNotFoundException){
-            return ResponseHelper::errorHandling("Resource not found", Response::HTTP_NOT_FOUND);
+        catch(ModelNotFoundException){
+            $message = "Resource not found";
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        event(new GenericEvent(
+            $message, 
+            Route::current()->uri(),
+            Route::current()->methods(),
+            $request
+        ));
+
+        return $res;
         
     }
 }
