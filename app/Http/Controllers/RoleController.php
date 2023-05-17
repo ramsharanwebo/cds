@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GenericEvent;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\RoleRequest;
+use Illuminate\Support\Facades\Route;
 use App\Repositories\RoleRepository;
 use BadMethodCallException;
 use Exception;
@@ -66,7 +67,14 @@ class RoleController extends Controller
             $data['name'] = $request->name;
             $data['description'] = $request->description;
             $role = $this->roleRepository->create($data);
-            
+
+            event(new GenericEvent(
+                'Role created successfully', 
+                Route::current()->uri(),
+                Route::current()->methods(),
+                $request
+            ));
+ 
             return ResponseHelper::successHandler($role, "Role created successfully", RESPONSE::HTTP_OK);
         }
         catch(BadMethodCallException $badMethodCallException){

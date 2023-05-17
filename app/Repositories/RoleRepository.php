@@ -6,7 +6,6 @@ use App\Interfaces\RoleInterface;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class RoleRepository implements RoleInterface
