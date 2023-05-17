@@ -88,14 +88,14 @@ Route::group(['prefix'=> 'v1'], function(){
     // Route::post('/remove-location-to-user', [LocationController::class, 'removeLocationToUser']);
 
 
-    //Duckets
-    Route::group(['prefix'=>'duckets'], function(){
-        Route::get('/', [DucketController::class, 'index']);
-        Route::get('/{id}', [DucketController::class, 'show']);
-        Route::post('/', [DucketController::class, 'create']);
-        Route::put('/{id}', [DucketController::class, 'update']);
-        Route::delete('/{id}', [DucketController::class, 'delete']);
-    });
+    // //Duckets
+    // Route::group(['prefix'=>'duckets'], function(){
+    //     Route::get('/', [DucketController::class, 'index']);
+    //     Route::get('/{id}', [DucketController::class, 'show']);
+    //     Route::post('/', [DucketController::class, 'create']);
+    //     Route::put('/{id}', [DucketController::class, 'update']);
+    //     Route::delete('/{id}', [DucketController::class, 'delete']);
+    // });
 
     //tickets
     // Route::group(['prefix'=>'tickets'], function(){
