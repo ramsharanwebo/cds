@@ -4,7 +4,7 @@ use App\Http\Controllers\AttachPermissionsController;
 use App\Http\Controllers\CDSUserController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DucketController;
-use App\Http\Controllers\GenericEventController;
+// use App\Http\Controllers\GenericEventController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
@@ -71,7 +71,7 @@ Route::group(['prefix'=> 'v1'], function(){
         Route::get('/{id}', [CustomerController::class, 'show']);
         Route::post('/', [CustomerController::class, 'create']);
         Route::put('/{id}', [CustomerController::class, 'update']);
-        Route::delete(' /{id}', [CustomerController::class, 'delete']);
+        Route::delete('/{id}', [CustomerController::class, 'delete']);
 
     });
     
@@ -107,5 +107,5 @@ Route::group(['prefix'=> 'v1'], function(){
     //     Route::delete('/{id}', [TicketController::class, 'delete']);
     // });
 
-    Route::post('/send-event-data', [GenericEventController::class, 'sendEventLog']);
+    // Route::post('/send-event-data', [GenericEventController::class, 'sendEventLog']);
 });

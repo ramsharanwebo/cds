@@ -64,8 +64,6 @@ class GenericEventListener implements ShouldQueue
             $method = $method->getValue($event);
             $descrition = json_encode($descrition->getValue($event));
 
-        
-
         // Send the POST request to the API
         $response = $client->request('POST', $url,
         [

@@ -5,7 +5,7 @@ use Illuminate\Http\JsonResponse;
 
 class ResponseHelper {
 
-    static function successHandler($data=null, $message=null, $status_code=null): JsonResponse
+    static function successHandler($data=[], $message=null, $status_code=null): JsonResponse
     {
         return response()->json(['payload'=> $data, 'message'=>$message, 'status_code'=>$status_code]);
     }

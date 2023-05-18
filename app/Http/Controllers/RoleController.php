@@ -130,11 +130,14 @@ class RoleController extends Controller
 
     public function delete(int $id): JsonResponse
     {
+        $request = new Request;
+        $request->query->add(['id' => $id]);
+
         try{
             $this->roleRepository->delete($id);
             $message = "Role deleted successfully";
 
-            $res = ResponseHelper::successHandler($message, RESPONSE::HTTP_OK);
+            $res = ResponseHelper::successHandler($data=[], $message, RESPONSE::HTTP_OK);
         }
         catch(ModelNotFoundException){
             $message = "Resource not found";
@@ -153,6 +156,5 @@ class RoleController extends Controller
         ));
 
         return $res;
-        
     }
 }

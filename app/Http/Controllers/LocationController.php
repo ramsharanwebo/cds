@@ -11,6 +11,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Validator;
+use App\Events\GenericEvent;
+use Illuminate\Support\Facades\Route;
 
 class LocationController extends Controller
 {
@@ -40,17 +42,28 @@ class LocationController extends Controller
 
     public function show(int $id): JsonResponse
     {
+        $request = new Request;
+        $request->query->add(['id' => $id]);
         try{
             $location = $this->locationRepository->getById($id);
-            return ResponseHelper::successHandler($location, "Location fetched successfully", RESPONSE::HTTP_OK);
+            $message = "Location fetched successfully";
+            $res = ResponseHelper::successHandler($location, $message, RESPONSE::HTTP_OK);
         }
         catch(ModelNotFoundException $modelNotFoundException){
-            return ResponseHelper::errorHandling("No resource found!", Response::HTTP_NOT_FOUND);
+            $res = ResponseHelper::errorHandling("No resource found!", Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){ 
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $res = ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        
+
+        event(new GenericEvent(
+            $message, 
+            Route::current()->uri(),
+            Route::current()->methods(),
+            $request
+        ));
+
+        return $res;
     }
 
     public function create(Request $request): JsonResponse
@@ -63,19 +76,31 @@ class LocationController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+                $message = $validator->errors();
+                $res = ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             $location = $this->locationRepository->create($request);
-            
-            return ResponseHelper::successHandler($location, "Location created successfully", RESPONSE::HTTP_CREATED);
+            $message = "Location created successfully";
+
+            $res = ResponseHelper::successHandler($location, $message, RESPONSE::HTTP_CREATED);
         }
         catch(BadMethodCallException $badMethodCallException){
-            return ResponseHelper::errorHandling($badMethodCallException->getMessage(), Response::HTTP_BAD_REQUEST);
+            $message = $badMethodCallException->getMessage();
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_BAD_REQUEST);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        event(new GenericEvent(
+            $message, 
+            Route::current()->uri(),
+            Route::current()->methods(),
+            $request
+        ));
+        return $res;
         
     }
 
@@ -89,39 +114,63 @@ class LocationController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+                $message = $validator->errors();
+                $res = ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             $location = $this->locationRepository->update($request, $id);
-            
-            return ResponseHelper::successHandler($location, "Location updated successfully", RESPONSE::HTTP_OK);
+            $message = "Location updated successfully";
+            $res = ResponseHelper::successHandler($location, $message, RESPONSE::HTTP_OK);
         }
         catch(ModelNotFoundException $modelNotFoundException){
-            return ResponseHelper::errorHandling("Resource not found", Response::HTTP_NOT_FOUND);
+            $message = "Resource not found";
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        event(new GenericEvent(
+            $message, 
+            Route::current()->uri(),
+            Route::current()->methods(),
+            $request
+        ));
+        return $res;
         
     }
 
     public function delete(int $id): JsonResponse
     {
+        $request = new Request;
+        $request->query->add(['id' => $id]);
+
         try{
             $this->locationRepository->delete($id);
-            
-            return ResponseHelper::successHandler($data=[], "Location deleted successfully", RESPONSE::HTTP_OK);
+            $message = "Location deleted successfully";
+            $res = ResponseHelper::successHandler($data=[], $message, RESPONSE::HTTP_OK);
         }
         catch(ModelNotFoundException $modelNotFoundException){
-            return ResponseHelper::errorHandling("Resource not found", Response::HTTP_NOT_FOUND);
+            $message = "Resource not found";
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        
+
+        event(new GenericEvent(
+            $message, 
+            Route::current()->uri(),
+            Route::current()->methods(),
+            $request
+        ));
+
+        return $res;
     }
 
-    public function assignLocationToUser(Request $request)
+    public function assignLocationToUser(Request $request): JsonResponse
     {
         try{
             $validator = Validator::make($request->all(), [ 
@@ -130,19 +179,30 @@ class LocationController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+                $message = $validator->errors();
+                $res = ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             $locationAttached = $this->locationRepository->assignLocationToUser($request);
-            
-            return ResponseHelper::successHandler($locationAttached, "Location Attached to User Successfully", RESPONSE::HTTP_CREATED);
+            $message = "Location Attached to User Successfully";
+            $res = ResponseHelper::successHandler($locationAttached, "Location Attached to User Successfully", RESPONSE::HTTP_CREATED);
         }
         catch(BadMethodCallException $badMethodCallException){
-            return ResponseHelper::errorHandling($badMethodCallException->getMessage(), Response::HTTP_BAD_REQUEST);
+            $message = $badMethodCallException->getMessage();
+            $res = ResponseHelper::errorHandling($badMethodCallException->getMessage(), Response::HTTP_BAD_REQUEST);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        event(new GenericEvent(
+            $message, 
+            Route::current()->uri(),
+            Route::current()->methods(),
+            $request
+        ));
+        return $res;
     }
 
 
@@ -155,18 +215,31 @@ class LocationController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+                $message = $validator->errors();
+                $res = ResponseHelper::errorHandling($message, RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             $locationRemoved = $this->locationRepository->removeLocationToUser($request);
-            
-            return ResponseHelper::successHandler($locationRemoved, "Location removed to User Successfully", RESPONSE::HTTP_OK);
+            $message = "Location removed to User Successfully";
+
+            $res = ResponseHelper::successHandler($locationRemoved, $message, RESPONSE::HTTP_OK);
         }
         catch(BadMethodCallException $badMethodCallException){
-            return ResponseHelper::errorHandling($badMethodCallException->getMessage(), Response::HTTP_BAD_REQUEST);
+            $message = $badMethodCallException->getMessage();
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_BAD_REQUEST);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($message, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        event(new GenericEvent(
+            $message, 
+            Route::current()->uri(),
+            Route::current()->methods(),
+            $request
+        ));
+
+        return $res;
     }
 }
