@@ -29,6 +29,10 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['prefix'=> 'v1'], function(){
+    Route::get('/login', 'AuthController@login');
+    Route::get('/callback', 'AuthController@callback');
+    Route::get('/logout', 'AuthController@logout');
+
     // roles
     Route::group(['prefix'=>'roles'], function(){
         Route::get('/', [RoleController::class, 'index']);
