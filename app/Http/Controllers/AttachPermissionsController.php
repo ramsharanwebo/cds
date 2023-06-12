@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
+use App\Jobs\LogActivity;
 use App\Repositories\AttachPermissionRepository;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -14,6 +15,7 @@ use Illuminate\Http\Response;
 
 class AttachPermissionsController extends Controller
 {
+    private $message;
     private $attachPermissionRepository;
 
     public function __construct(AttachPermissionRepository $attachPermissionRepository)
@@ -30,19 +32,24 @@ class AttachPermissionsController extends Controller
             ]);
             
             if ($validator->fails()) {
-                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+                $res = ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             $permission = $this->attachPermissionRepository->attachPermissionToRole($request);
-            
-            return ResponseHelper::successHandler($permission, "Permissions are attached to Role successfully", RESPONSE::HTTP_OK);
+            $this->message = "Permissions are attached to Role successfully";
+            $res = ResponseHelper::successHandler($permission, $this->message, RESPONSE::HTTP_OK);
         }
-        catch(ModelNotFoundException $modelNotFoundException){
-            return ResponseHelper::errorHandling("Resource not found", Response::HTTP_NOT_FOUND);
+        catch(ModelNotFoundException){
+            $res = ResponseHelper::errorHandling("Resource not found", Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $res = ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $messageBody = ['payload'=> $permission, 'url'=>request()->url(), 'method'=>request()->method(), 'subject'=> $this->message];
+        LogActivity::dispatch(json_encode($messageBody))->onQueue('activities');
+
+        return $res;
     }
 
     public function detachPermissionToRole(Request $request): JsonResponse
@@ -54,19 +61,23 @@ class AttachPermissionsController extends Controller
             ]);
             
             if ($validator->fails()) {
-                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+                $res= ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
-
+            $this->message = "Permissions are detached to Role successfully";
             $permission = $this->attachPermissionRepository->detachPermissionToRole($request);
             
-            return ResponseHelper::successHandler($permission, "Permissions are detached to Role successfully", RESPONSE::HTTP_OK);
+            $res = ResponseHelper::successHandler($permission, $this->message, RESPONSE::HTTP_OK);
         }
-        catch(ModelNotFoundException $modelNotFoundException){
-            return ResponseHelper::errorHandling("Resource not found", Response::HTTP_NOT_FOUND);
+        catch(ModelNotFoundException){
+            $res = ResponseHelper::errorHandling($this->message="Resource not found", Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $res = ResponseHelper::errorHandling($this->message=$ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $messageBody = ['payload'=> $permission, 'url'=>request()->url(), 'method'=>request()->method(), 'subject'=> $this->message];
+        LogActivity::dispatch(json_encode($messageBody))->onQueue('activities');
+        return $res;
     }
 
     
@@ -79,19 +90,24 @@ class AttachPermissionsController extends Controller
             ]);
             
             if ($validator->fails()) {
-                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+                $res = ResponseHelper::errorHandling($this->message=$validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             $permission = $this->attachPermissionRepository->attachPermissionToUser($request);
             
-            return ResponseHelper::successHandler($permission, "Permissions are attached to user successfully", RESPONSE::HTTP_OK);
+            $res = ResponseHelper::successHandler($permission, $this->message="Permissions are attached to user successfully", RESPONSE::HTTP_OK);
         }
-        catch(ModelNotFoundException $modelNotFoundException){
-            return ResponseHelper::errorHandling("Resource not found", Response::HTTP_NOT_FOUND);
+        catch(ModelNotFoundException){
+            $res = ResponseHelper::errorHandling($this->message="Resource not found", Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $res = ResponseHelper::errorHandling($this->message=$ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $messageBody = ['payload'=> $permission, 'url'=>request()->url(), 'method'=>request()->method(), 'subject'=> $this->message];
+        LogActivity::dispatch(json_encode($messageBody))->onQueue('activities');
+
+        return $res;
     }
 
 
@@ -104,18 +120,23 @@ class AttachPermissionsController extends Controller
             ]);
             
             if ($validator->fails()) {
-                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+                $res = ResponseHelper::errorHandling($this->message = $validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             $permission = $this->attachPermissionRepository->detachPermissionToUser($request);
             
-            return ResponseHelper::successHandler($permission, "Permissions are detached to User successfully", RESPONSE::HTTP_OK);
+            $res = ResponseHelper::successHandler($permission, $this->message = "Permissions are detached to User successfully", RESPONSE::HTTP_OK);
         }
-        catch(ModelNotFoundException $modelNotFoundException){
-            return ResponseHelper::errorHandling("Resource not found", Response::HTTP_NOT_FOUND);
+        catch(ModelNotFoundException){
+            $res = ResponseHelper::errorHandling($this->message = "Resource not found", Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $res = ResponseHelper::errorHandling($this->message = $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $messageBody = ['payload'=> $permission, 'url'=>request()->url(), 'method'=>request()->method(), 'subject'=> $this->message];
+        LogActivity::dispatch(json_encode($messageBody))->onQueue('activities');
+
+        return $res;
     }
 }

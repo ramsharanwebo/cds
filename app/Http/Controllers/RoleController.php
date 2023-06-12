@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\GenericEvent;
 use App\Helpers\ResponseHelper;
-use Illuminate\Support\Facades\Route;
+use App\Jobs\LogActivity;
 use App\Repositories\RoleRepository;
 use BadMethodCallException;
 use Exception;
@@ -12,12 +11,12 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-// use Illuminate\Support\Facades\Validator;
 use Validator;
 
 class RoleController extends Controller
 {
     private $roleRepository;
+    private $message;
     
     public function __construct(RoleRepository $roleRepository)
     {
@@ -33,23 +32,32 @@ class RoleController extends Controller
         $per_page = $request->per_page??2;
 
         $roles = $this->roleRepository->getAllPaginated($page_num, $per_page, $sort_by, $order, $key);
-
-        return ResponseHelper::successHandler($roles, "Roles are fetched successfully", 200);
+        $this->message = "Roles are fetched successfully";
+        
+        $messageBody = ['payload'=> $roles, 'url'=>request()->url(), 'method'=>request()->method(), 'subject'=> $this->message];
+        LogActivity::dispatch(json_encode($messageBody))->onQueue('activities');
+        return ResponseHelper::successHandler($roles, $this->message, 200);
     }
 
     public function show(int $id): JsonResponse
     {
         try{
             $role = $this->roleRepository->getById($id);
-            return ResponseHelper::successHandler($role, "Role fetched successfully", RESPONSE::HTTP_OK);
+            $this->message = "Role fetched successfully";
+            $res = ResponseHelper::successHandler($role, $this->message, RESPONSE::HTTP_OK);
         }
-        catch(ModelNotFoundException $modelNotFoundException){
-            return ResponseHelper::errorHandling("No resource found!", Response::HTTP_NOT_FOUND);
+        catch(ModelNotFoundException){
+            $this->message = "No resource found!";
+            $res = ResponseHelper::errorHandling($this->message, Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){ 
-            return ResponseHelper::errorHandling($ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            $this->message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($this->message, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        
+
+        $messageBody = ['payload'=> $id, 'url'=>request()->url(), 'method'=>request()->method(), 'subject'=> $this->message];
+        LogActivity::dispatch(json_encode($messageBody))->onQueue('activities');
+        return $res;
     }
 
     public function create(Request $request): JsonResponse
@@ -61,31 +69,27 @@ class RoleController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
+                $res = ResponseHelper::errorHandling($validator->errors(), RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
             }
 
             $data['name'] = $request->name;
             $data['description'] = $request->description;
             $role = $this->roleRepository->create($data);
-            $message = 'Role created successfully';
+            $this->message = 'Role created successfully';
 
-            $res = ResponseHelper::successHandler($role, $message, RESPONSE::HTTP_OK);
+            $res = ResponseHelper::successHandler($role, $this->message, RESPONSE::HTTP_OK);
         }
         catch(BadMethodCallException $badMethodCallException){
-            $message = $badMethodCallException->getMessage();
-            $res = ResponseHelper::errorHandling($message, Response::HTTP_BAD_REQUEST);
+            $this->message = $badMethodCallException->getMessage();
+            $res = ResponseHelper::errorHandling($this->message, Response::HTTP_BAD_REQUEST);
         }
         catch(Exception $ex){
-            $message = $ex->getMessage();
-            $res = ResponseHelper::errorHandling($message, Response::HTTP_INTERNAL_SERVER_ERROR);
+            $this->message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($this->message, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        event(new GenericEvent(
-            $message, 
-            Route::current()->uri(),
-            Route::current()->methods(),
-            $request
-        ));
+        $messageBody = ['payload'=> $role, 'url'=>request()->url(), 'method'=>request()->method(), 'subject'=> $this->message];
+        LogActivity::dispatch(json_encode($messageBody))->onQueue('activities');
 
         return $res;
         
@@ -104,25 +108,21 @@ class RoleController extends Controller
             }
 
             $role = $this->roleRepository->update($request, $id);
-            $message = "Role updated successfully";
+            $this->message = "Role updated successfully";
 
-            $res = ResponseHelper::successHandler($role, $message, RESPONSE::HTTP_OK);
+            $res = ResponseHelper::successHandler($role, $this->message, RESPONSE::HTTP_OK);
         }
         catch(ModelNotFoundException){
-            $message = "Resource not found";
-            $res = ResponseHelper::errorHandling($message, Response::HTTP_NOT_FOUND);
+            $this->message = "Resource not found";
+            $res = ResponseHelper::errorHandling($this->message, Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){
-            $message = $ex->getMessage();
-            $res = ResponseHelper::errorHandling($message, Response::HTTP_INTERNAL_SERVER_ERROR);
+            $this->message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($this->message, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        event(new GenericEvent(
-            $message, 
-            Route::current()->uri(),
-            Route::current()->methods(),
-            $request
-        ));
+        $messageBody = ['payload'=> $role, 'url'=>request()->url(), 'method'=>request()->method(), 'subject'=> $this->message];
+        LogActivity::dispatch(json_encode($messageBody))->onQueue('activities');
 
         return $res;
         
@@ -132,25 +132,21 @@ class RoleController extends Controller
     {
         try{
             $this->roleRepository->delete($id);
-            $message = "Role deleted successfully";
+            $this->message = "Role deleted successfully";
 
-            $res = ResponseHelper::successHandler($message, RESPONSE::HTTP_OK);
+            $res = ResponseHelper::successHandler($this->message, RESPONSE::HTTP_OK);
         }
         catch(ModelNotFoundException){
-            $message = "Resource not found";
-            $res = ResponseHelper::errorHandling($message, Response::HTTP_NOT_FOUND);
+            $this->message = "Resource not found";
+            $res = ResponseHelper::errorHandling($this->message, Response::HTTP_NOT_FOUND);
         }
         catch(Exception $ex){
-            $message = $ex->getMessage();
-            $res = ResponseHelper::errorHandling($message, Response::HTTP_INTERNAL_SERVER_ERROR);
+            $this->message = $ex->getMessage();
+            $res = ResponseHelper::errorHandling($this->message, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        event(new GenericEvent(
-            $message, 
-            Route::current()->uri(),
-            Route::current()->methods(),
-            $request
-        ));
+        $messageBody = ['payload'=> [], 'url'=>request()->url(), 'method'=>request()->method(), 'subject'=> $this->message];
+        LogActivity::dispatch(json_encode($messageBody))->onQueue('activities');
 
         return $res;
         
