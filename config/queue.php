@@ -65,10 +65,26 @@ return [
         'redis' => [
             'driver' => 'redis',
             'connection' => 'default',
-            'queue' => env('REDIS_QUEUE', 'default'),
+            'queue' => env('REDIS_QUEUE', 'default'),                                                                                 
             'retry_after' => 90,
             'block_for' => null,
             'after_commit' => false,
+        ],
+
+        // rabbitMQ Integration
+        'rabbitmq' => [
+            'driver' => 'rabbitmq',
+            'queue' => env('RABBITMQ_QUEUE', 'default'),
+            'connection' => PhpAmqpLib\Connection\AMQPStreamConnection::class,
+            'hosts' => [
+                [             
+                    'host' => env('RABBITMQ_HOST', 'localhost'),
+                    'port' => env('RABBITMQ_PORT', 5672),
+                    'user' => env('RABBITMQ_USER', 'guest'),
+                    'password' => env('RABBITMQ_PASSWORD', 'guest'),
+                    'vhost' => env('RABBITMQ_VHOST', '/'),
+                ],
+            ],
         ],
 
     ],
