@@ -68,7 +68,8 @@ class CDSUserRepository implements CDSUserInterface
         }
     }
 
-    public function usernameGenerator(string $email){
+    public function usernameGenerator(string $email)
+    {
         if($email !=null){
             $rowEmail = explode("@", $email);
             return $rowEmail[0];
