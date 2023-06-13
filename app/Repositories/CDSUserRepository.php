@@ -4,11 +4,15 @@ namespace App\Repositories;
 
 use App\Interfaces\CDSUserInterface;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use GuzzleHttp\Client;
 
 class CDSUserRepository implements CDSUserInterface
 {
@@ -75,5 +79,22 @@ class CDSUserRepository implements CDSUserInterface
             return $rowEmail[0];
         }
         return null;
+    }
+
+    public function getUserLogs(string $id){
+        $cds_url = Config::get('app.cds_url');
+        $client = new Client(['timeout' => 60]);
+
+        try {
+            $response = $client->request('GET', $cds_url.'/users'.'/'.$id.'/logs');
+
+            // $request = $client->get('http://myexample.com');
+            $response = $response->getBody();
+            // ...
+            return $response;
+        } catch (Exception $e) {
+            // Handle any exceptions that occurred during the request
+            // ...
+        }
     }
 }

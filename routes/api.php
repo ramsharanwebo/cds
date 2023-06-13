@@ -55,6 +55,7 @@ Route::group(['prefix'=> 'v1'], function(){
         Route::post('/', [CDSUserController::class, 'create']);
         Route::put('/{id}', [CDSUserController::class, 'update']);
         Route::delete('/{id}', [CDSUserController::class, 'delete']);
+        Route::get('/{user_id}/logs', [CDSUserController::class, 'getUserLogs']);
     });
     
     //attach permissions to role

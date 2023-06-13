@@ -18,4 +18,6 @@ interface CDSUserInterface
 
     public function delete(int $id): bool;
 
+    public function getUserLogs(string $encodedId);
+
 }

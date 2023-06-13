@@ -153,4 +153,16 @@ class CDSUserController extends Controller
 
         return $res;
     }
+
+    public function getUserLogs(int $id)
+    {
+        try {
+            return $this->cDSUserRepository->getUserLogs($id);
+        } 
+        catch (Exception $ex) {
+            $res = ResponseHelper::errorHandling($this->message = $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $res;
+    }
 }
