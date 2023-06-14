@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use GuzzleHttp\Client;
+use Illuminate\Support\Collection;
 
 class CDSUserRepository implements CDSUserInterface
 {
@@ -96,5 +97,15 @@ class CDSUserRepository implements CDSUserInterface
             // Handle any exceptions that occurred during the request
             // ...
         }
+    }
+
+    public function makeArchived(Request $request, int $user_id): User
+    {
+        $archived = User::where('id', $user_id)->update(['status'=> $request->status]);
+        if($archived){
+            $user = User::where('id', $user_id)->first();
+            return $user;
+        }
+        return null;
     }
 }

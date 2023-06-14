@@ -20,4 +20,6 @@ interface CDSUserInterface
 
     public function getUserLogs(string $encodedId);
 
+    public function makeArchived(Request $request, int $user_id):User;
+
 }

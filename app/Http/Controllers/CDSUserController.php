@@ -157,8 +157,25 @@ class CDSUserController extends Controller
     public function getUserLogs(int $id)
     {
         try {
-            return $this->cDSUserRepository->getUserLogs($id);
+            $logs = $this->cDSUserRepository->getUserLogs($id);
+            $res = ResponseHelper::successHandler($logs, $this->message = "User's logs fetched successfully", RESPONSE::HTTP_OK);
         } 
+        catch (Exception $ex) {
+            $res = ResponseHelper::errorHandling($this->message = $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $res;
+    }
+
+    public function makeArchived(Request $request, int $user_id): JsonResponse
+    {
+        try {
+            $logs = $this->cDSUserRepository->makeArchived($request, $user_id);
+            $res = ResponseHelper::successHandler($logs, $this->message = $request->status=="archived"?"Archived successfully":"Removed from archived successfully", RESPONSE::HTTP_OK);
+        } 
+        catch(ModelNotFoundException){
+            $res = ResponseHelper::errorHandling($this->message = "Resouce not found", Response::HTTP_NOT_FOUND);
+        }
         catch (Exception $ex) {
             $res = ResponseHelper::errorHandling($this->message = $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
