@@ -180,6 +180,10 @@ class CDSUserController extends Controller
             $res = ResponseHelper::errorHandling($this->message = $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
+        $messageBody = ['payload'=> $logs, 'url'=>request()->url(), 'method'=>request()->method(), 'subject'=> $this->message];
+        
+        LogActivity::dispatch(json_encode($messageBody))->onQueue('activities');
+
         return $res;
     }
 }
