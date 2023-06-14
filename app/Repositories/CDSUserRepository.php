@@ -10,10 +10,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use GuzzleHttp\Client;
-use Illuminate\Support\Collection;
 
 class CDSUserRepository implements CDSUserInterface
 {
@@ -82,20 +79,18 @@ class CDSUserRepository implements CDSUserInterface
         return null;
     }
 
-    public function getUserLogs(string $id){
+    public function getUserLogs(int $user_id){
         $cds_url = Config::get('app.cds_url');
         $client = new Client(['timeout' => 60]);
 
         try {
-            $response = $client->request('GET', $cds_url.'/users'.'/'.$id.'/logs');
+            $response = $client->request('GET', $cds_url.'/users'.'/'.$user_id.'/logs');
+            $logs = $response->getBody();
 
-            // $request = $client->get('http://myexample.com');
-            $response = $response->getBody();
-            // ...
-            return $response;
+            return $logs;
+
         } catch (Exception $e) {
-            // Handle any exceptions that occurred during the request
-            // ...
+            return $e->getMessage();
         }
     }
 

@@ -18,7 +18,7 @@ interface CDSUserInterface
 
     public function delete(int $id): bool;
 
-    public function getUserLogs(string $encodedId);
+    public function getUserLogs(int $user_id);
 
     public function makeArchived(Request $request, int $user_id):User;
 

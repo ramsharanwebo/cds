@@ -154,10 +154,10 @@ class CDSUserController extends Controller
         return $res;
     }
 
-    public function getUserLogs(int $id)
+    public function getUserLogs(int $user_id)
     {
         try {
-            $logs = $this->cDSUserRepository->getUserLogs($id);
+            $logs = $this->cDSUserRepository->getUserLogs($user_id);
             $res = ResponseHelper::successHandler($logs, $this->message = "User's logs fetched successfully", RESPONSE::HTTP_OK);
         } 
         catch (Exception $ex) {
