@@ -8,6 +8,7 @@ use App\Http\Controllers\GenericEventController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TicketController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -109,5 +110,12 @@ Route::group(['prefix'=> 'v1'], function(){
     //     Route::delete('/{id}', [TicketController::class, 'delete']);
     // });
 
-    Route::post('/send-event-data', [GenericEventController::class, 'sendEventLog']);
+    // settings
+    Route::group(['prefix'=>'settings'], function(){
+        Route::get('/system-settings', [SettingController::class, 'getSystemSettings']);
+        Route::get('/{id}', [TicketController::class, 'show']);
+        Route::post('/', [TicketController::class, 'create']);
+        Route::put('/{id}', [TicketController::class, 'update']);
+        Route::delete('/{id}', [TicketController::class, 'delete']);
+    });
 });
